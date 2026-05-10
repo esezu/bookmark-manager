@@ -50,6 +50,116 @@ docker-compose up -d
 
 访问 http://localhost:8080 即可使用。
 
+### 手动部署
+
+#### 环境要求
+
+- **Bun >= 1.0**（后端）
+- **Node.js >= 20.x**（前端）
+- **Nginx**（推荐用于反向代理）
+
+#### 安装依赖
+
+```bash
+# 安装 Bun
+curl -fsSL https://bun.sh/install | bash
+
+# 安装 Node.js（使用 nvm）
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+nvm install 20
+nvm use 20
+```
+
+#### 后端部署
+
+```bash
+cd backend
+bun install
+bun run build
+
+# 开发模式
+bun run dev
+
+# 生产模式（推荐使用 pm2）
+npm install -g pm2
+pm2 start dist/index.js --name bookmark-backend
+pm2 startup
+pm2 save
+```
+
+后端服务默认运行在 http://localhost:3000
+
+#### 前端部署
+
+```bash
+cd frontend
+npm install
+npm run build
+
+# 将构建产物复制到 Nginx 目录
+cp -r dist/* /var/www/html/
+```
+
+#### Nginx 配置
+
+创建配置文件 `/etc/nginx/sites-available/bookmark-manager`：
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    # 前端静态文件
+    location / {
+        root /var/www/html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    # API 反向代理
+    location /api {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+启用配置：
+
+```bash
+ln -s /etc/nginx/sites-available/bookmark-manager /etc/nginx/sites-enabled/
+nginx -t
+systemctl restart nginx
+```
+
+#### 环境变量（可选）
+
+在后端目录创建 `.env` 文件：
+
+```bash
+JWT_SECRET=your-secret-key-change-in-production
+PORT=3000
+```
+
+#### 更新代码
+
+```bash
+git pull origin main
+
+# 重新构建后端
+cd backend
+bun run build
+pm2 restart bookmark-backend
+
+# 重新构建前端
+cd frontend
+npm run build
+cp -r dist/* /var/www/html/
+```
+
 ## 📖 API 文档
 
 ### 认证接口
