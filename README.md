@@ -142,7 +142,67 @@ systemctl restart nginx
 ```bash
 JWT_SECRET=your-secret-key-change-in-production
 PORT=3000
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:8080
+NODE_ENV=production
 ```
+
+## 🔒 安全配置
+
+本系统实现了多层安全防护机制：
+
+### 1. 安全响应头
+
+| 头信息 | 值 | 作用 |
+|--------|-----|------|
+| X-Content-Type-Options | nosniff | 防止 MIME 类型嗅探 |
+| X-Frame-Options | DENY | 防止点击劫持攻击 |
+| X-XSS-Protection | 1; mode=block | XSS 攻击防护 |
+| Content-Security-Policy | strict CSP | 内容安全策略 |
+| Strict-Transport-Security | max-age=31536000 | 强制 HTTPS |
+
+### 2. 速率限制
+
+| 端点 | 限制 | 窗口时间 |
+|------|------|----------|
+| 注册 | 5 次/分钟 | 严格限制 |
+| 登录 | 10 次/分钟 | 防止暴力破解 |
+| 其他 API | 200 次/分钟 | 通用限制 |
+
+### 3. 强密码策略
+
+- 最少 8 位字符
+- 必须包含大写字母
+- 必须包含小写字母
+- 必须包含数字
+- 必须包含特殊字符 (@$!%*?&)
+
+### 4. 跨域访问控制 (CORS)
+
+默认允许的来源：
+- `http://localhost:5173` (开发环境)
+- `http://localhost:8080` (Docker 环境)
+
+生产环境请通过 `ALLOWED_ORIGINS` 环境变量配置。
+
+### 5. 请求日志与监控
+
+- 记录所有 API 请求
+- 检测可疑请求（SQL注入、XSS等）
+- 请求频率统计
+- 用户行为追踪
+
+### 6. 认证安全
+
+- JWT Token 认证
+- Token 有效期 7 天
+- 支持 Token 刷新
+- 安全登出机制
+
+### 7. SQL 注入防护
+
+- 使用 Drizzle ORM 参数化查询
+- 输入验证与过滤
+- 可疑 SQL 模式检测
 
 #### 更新代码
 
