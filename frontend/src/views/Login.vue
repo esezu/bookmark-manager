@@ -9,8 +9,8 @@
       </template>
       
       <n-form ref="formRef" :model="form" :rules="rules">
-        <n-form-item path="username" label="用户名">
-          <n-input v-model:value="form.username" placeholder="请输入用户名" />
+        <n-form-item path="username" label="用户名/邮箱">
+          <n-input v-model:value="form.username" placeholder="请输入用户名或邮箱" />
         </n-form-item>
         
         <n-form-item path="password" label="密码">

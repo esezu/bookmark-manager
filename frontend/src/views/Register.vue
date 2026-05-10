@@ -70,6 +70,28 @@ const validateConfirmPassword = (rule: any, value: string) => {
   return true
 }
 
+const validatePassword = (rule: any, value: string) => {
+  if (!value) {
+    return new Error('请输入密码')
+  }
+  if (value.length < 8) {
+    return new Error('密码至少 8 个字符')
+  }
+  if (!/[A-Z]/.test(value)) {
+    return new Error('密码必须包含大写字母')
+  }
+  if (!/[a-z]/.test(value)) {
+    return new Error('密码必须包含小写字母')
+  }
+  if (!/[0-9]/.test(value)) {
+    return new Error('密码必须包含数字')
+  }
+  if (!/[@$!%*?&]/.test(value)) {
+    return new Error('密码必须包含特殊字符（@$!%*?&）')
+  }
+  return true
+}
+
 const rules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -78,7 +100,7 @@ const rules = {
   email: { type: 'email' as const, message: '请输入有效的邮箱地址', trigger: 'blur' },
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 100, message: '密码长度至少 6 个字符', trigger: 'blur' }
+    { validator: validatePassword, trigger: 'blur' }
   ],
   confirmPassword: [
     { required: true, message: '请再次输入密码', trigger: 'blur' },
