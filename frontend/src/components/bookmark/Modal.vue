@@ -1,5 +1,5 @@
 <template>
-  <n-modal v-model:show="show" preset="card" :title="isEdit ? '编辑书签' : '添加书签'" style="width: 500px">
+  <n-modal :show="show" @update:show="emit('update:show', $event)" preset="card" :title="isEdit ? '编辑书签' : '添加书签'" style="width: 500px">
     <n-form ref="formRef" :model="form" :rules="rules" label-placement="top">
       <n-form-item label="标题" path="title">
         <n-input v-model:value="form.title" placeholder="请输入书签标题" />
@@ -43,7 +43,7 @@
     
     <template #footer>
       <n-space justify="end">
-        <n-button @click="show = false">取消</n-button>
+        <n-button @click="emit('update:show', false)">取消</n-button>
         <n-button type="primary" :loading="loading" @click="handleSubmit">确定</n-button>
       </n-space>
     </template>

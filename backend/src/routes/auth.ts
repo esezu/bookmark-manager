@@ -16,23 +16,11 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-  username: z.string(),
+  username: z.string().optional(),
+  email: z.string().email().optional(),
   password: z.string()
-});
-
-authRoutes.post('/register', async (c) => {
-  const body = await c.req.json();
-  
-  try {
-    const parsed = registerSchema.parse(body);
-    const user = await register(parsed.username, parsed.password, parsed.email);
-    return success(c, user, '注册成功');
-  } catch (err: any) {
-    if (err instanceof z.ZodError) {
-      return error(c, err.errors[0].message);
-    }
-    return error(c, err.message);
-  }
+}).refine((data) => data.username || data.email, {
+  message: 'Either username or email is required'
 });
 
 authRoutes.post('/login', async (c) => {
@@ -40,7 +28,7 @@ authRoutes.post('/login', async (c) => {
   
   try {
     const parsed = loginSchema.parse(body);
-    const result = await login(parsed.username, parsed.password);
+    const result = await login(parsed.username || parsed.email || '', parsed.password);
     return success(c, result, '登录成功');
   } catch (err: any) {
     if (err instanceof z.ZodError) {

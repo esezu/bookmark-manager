@@ -34,8 +34,13 @@ export async function register(username: string, password: string, email?: strin
   };
 }
 
-export async function login(username: string, password: string) {
-  const user = db.select().from(users).where(eq(users.username, username)).get();
+export async function login(identifier: string, password: string) {
+  let user = db.select().from(users).where(eq(users.username, identifier)).get();
+  
+  if (!user) {
+    user = db.select().from(users).where(eq(users.email, identifier)).get();
+  }
+  
   if (!user) {
     throw new Error('Invalid credentials');
   }

@@ -64,7 +64,10 @@ const form = ref({
 })
 
 const validateConfirmPassword = (rule: any, value: string) => {
-  return value === form.value.password || '两次输入的密码不一致'
+  if (value !== form.value.password) {
+    return new Error('两次输入的密码不一致')
+  }
+  return true
 }
 
 const rules = {
@@ -72,7 +75,7 @@ const rules = {
     { required: true, message: '请输入用户名', trigger: 'blur' },
     { min: 3, max: 50, message: '用户名长度在 3 到 50 个字符', trigger: 'blur' }
   ],
-  email: { type: 'email', message: '请输入有效的邮箱地址', trigger: 'blur' },
+  email: { type: 'email' as const, message: '请输入有效的邮箱地址', trigger: 'blur' },
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, max: 100, message: '密码长度至少 6 个字符', trigger: 'blur' }

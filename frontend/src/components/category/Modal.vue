@@ -1,5 +1,5 @@
 <template>
-  <n-modal v-model:show="show" preset="card" :title="isEdit ? '编辑分类' : '添加分类'" style="width: 400px">
+  <n-modal :show="show" @update:show="emit('update:show', $event)" preset="card" :title="isEdit ? '编辑分类' : '添加分类'" style="width: 400px">
     <n-form ref="formRef" :model="form" :rules="rules" label-placement="top">
       <n-form-item label="名称" path="name">
         <n-input v-model:value="form.name" placeholder="请输入分类名称" />
@@ -21,7 +21,7 @@
     
     <template #footer>
       <n-space justify="end">
-        <n-button @click="show = false">取消</n-button>
+        <n-button @click="emit('update:show', false)">取消</n-button>
         <n-button type="primary" :loading="loading" @click="handleSubmit">确定</n-button>
       </n-space>
     </template>
